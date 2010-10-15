@@ -8,7 +8,7 @@
  */
 (function(window,document,undefined){
 
-  var EOL = ["\u000D","\u000D\u000A","\u000A"],
+  var EOL = ["\u000D\u000A","\u000D","\u000A"],
       TAB = ["\u0009","        "];
 
 
@@ -81,7 +81,7 @@
     return parent;
   }
 
-  // Function: applyTemplates(context)
+  // Function: applyTemplates(templates, input, start, end)
   // The simple template engine used for parsing.
   //
   // Each rule function is applied in turn, until one returns a defined result.
@@ -90,19 +90,19 @@
   //
   // Parameters:
   //   templates - array of functions, the set of template rules to apply
-  //   context - object, in/out context, with (at least) two properties:
-  //             * input: string, the source input
-  //             * index: integer, 0-based index of current character in input
+  //   input - string, the source text
+  //   start - index, 0-based, the start index of input to consider, included
+  //   end - index, 0-based, the end index of input to consider, excluded
   //
   // Returns:
   //   DOM element, the output of the first matching rule,
   //   or null if none matched. 
-  function applyTemplates(templates, context){
+  function applyTemplates(templates, input, start, end){
     
     var i, length, out;
 
     for (i=0, length=templates.length; i<length; i++){
-      out = templates[i](templates,context);
+      out = templates[i](templates, input, start, end);
       if (out) {
         return out;
       }
@@ -110,18 +110,29 @@
     return null;
   }
 
-  function paragraph(templates,context) {
+
+  function lineBreak(templates, input, start, end) {
+
+    var i, length, nextEol;
+
+    for (i=0, length=EOL.length; i<length; i++){
+      nextEol = input.indexOf(EOL[i]);
+      if (nextEol){
+        
+      }
+    }
+  }
+
+  function paragraph(templates, input, start, end) {
     
     return element("p",{},
-      applyTemplates([text],context)
+      applyTemplates([text], input, start, end)
     );
   }
 
-  function text(templates, context) {
+  function text(templates, input, start, end) {
     
-    var out = context.input.slice(context.index);
-    context.index = context.input.length;
-    return out;
+    return input.slice(start,end);
   }
 
   // Function: parse(input): DOM element
@@ -140,16 +151,18 @@
   function parse(input){
 
     // The parser is designed as a template engine: a set of rules are defined
-    // as functions which take an input context (in/out) and return either null
-    // (no match) or a DOM element to insert at current position in the tree
-    // (chosen by parent rule). This parsing follows a recursive descent
-    // approach, and the call stack during executing will reflect the hierarchy
-    // of the generated abstract parse tree.
+    // as functions which take an input string and start/end index and return
+    // either null (no match) or a DOM element to insert at current position in
+    // the tree (chosen by parent rule).
+    //
+    // This parsing follows a recursive descent approach, and the call stack
+    // during executing will reflect the hierarchy of the generated abstract
+    // parse tree.
 
     var templates = [paragraph, text];
 
     return element('div',{className:'body'},
-      applyTemplates(templates,{input:input, index:0})
+      applyTemplates(templates, input, 0, input.length)
     );
   }
 
