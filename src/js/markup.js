@@ -110,6 +110,26 @@
     return null;
   }
 
+  function blankLine(templates, input, start, end) {
+
+    var i, length, nextEol;
+
+    for (i=0, length=EOL.length; i<length; i++){
+      nextEol = input.indexOf(EOL[i]);
+      if (nextEol){
+        // TODO: replace eol with space
+        return;
+      }
+    }
+    return null;
+  }
+
+  function paragraph(templates, input, start, end) {
+    
+    return element("p",{},
+      applyTemplates([text], input, start, end)
+    );
+  }
 
   function lineBreak(templates, input, start, end) {
 
@@ -118,16 +138,11 @@
     for (i=0, length=EOL.length; i<length; i++){
       nextEol = input.indexOf(EOL[i]);
       if (nextEol){
-        
+        // TODO: replace eol with space
+        return;
       }
     }
-  }
-
-  function paragraph(templates, input, start, end) {
-    
-    return element("p",{},
-      applyTemplates([text], input, start, end)
-    );
+    return null;
   }
 
   function text(templates, input, start, end) {
