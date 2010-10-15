@@ -74,7 +74,9 @@
       if (typeof child === 'string') {
         child = document.createTextNode(child);
       }
-      parent.appendChild( child );
+      if (child) {
+        parent.appendChild( child );
+      }
     }
     return parent;
   }
@@ -133,7 +135,7 @@
     var templates = [];
 
     return element('div',{className:'body'},
-      applyTemplates(templates,{input:input, index:0});
+      applyTemplates(templates,{input:input, index:0})
     );
   }
 
