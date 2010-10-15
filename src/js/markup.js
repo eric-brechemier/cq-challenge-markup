@@ -84,7 +84,7 @@
   // Function: applyTemplates(templates, input, start, end)
   // The simple template engine used for parsing.
   //
-  // Each rule function is applied in turn, until one returns a defined result.
+  // Each rule function is applied in turn, until one returns true (match).
   // As a consequence, the position of each rule in the list corresponds to its
   // relative priority (highest first).
   //
@@ -93,24 +93,23 @@
   //   input - string, the source text
   //   start - index, 0-based, the start index of input to consider, included
   //   end - index, 0-based, the end index of input to consider, excluded
+  //   output - DOM Element, parent for the insertion of generated elements
   //
   // Returns:
-  //   DOM element, the output of the first matching rule,
-  //   or null if none matched. 
-  function applyTemplates(templates, input, start, end){
+  //   boolean: true if a rule matched, false otherwise.
+  function applyTemplates(templates, input, start, end, output){
     
     var i, length, out;
 
     for (i=0, length=templates.length; i<length; i++){
-      out = templates[i](templates, input, start, end);
-      if (out) {
-        return out;
+      if ( templates[i](templates, input, start, end, output) ){
+        return true;
       }
     }
-    return null;
+    return false;
   }
 
-  function blankLine(templates, input, start, end) {
+  function blankLine(templates, input, start, end, output) {
 
     var i, length, nextEol;
 
@@ -118,36 +117,40 @@
       nextEol = input.indexOf(EOL[i]);
       if (nextEol){
         // TODO: replace eol with space
-        return;
+        return true;
       }
     }
-    return null;
+    return false;
   }
 
-  function paragraph(templates, input, start, end) {
+  function paragraph(templates, input, start, end, output) {
     
-    return element("p",{},
-      applyTemplates([text], input, start, end)
+    var p = element("p",{});
+    output.appendChild(p);
+    applyTemplates([text], input, start, end, p);
+    return true;
+  }
+
+  function lineBreak(templates, input, start, end, output) {
+
+    var i, length, nextEol;
+
+    for (i=0, length=EOL.length; i<length; i++){
+      nextEol = input.indexOf(EOL[i]);
+      if (nextEol){
+        // TODO: replace eol with space
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function text(templates, input, start, end, output) {
+    
+    output.appendChild(
+      document.createTextNode( input.slice(start,end) )
     );
-  }
-
-  function lineBreak(templates, input, start, end) {
-
-    var i, length, nextEol;
-
-    for (i=0, length=EOL.length; i<length; i++){
-      nextEol = input.indexOf(EOL[i]);
-      if (nextEol){
-        // TODO: replace eol with space
-        return;
-      }
-    }
-    return null;
-  }
-
-  function text(templates, input, start, end) {
-    
-    return input.slice(start,end);
+    return true;
   }
 
   // Function: parse(input): DOM element
@@ -166,19 +169,22 @@
   function parse(input){
 
     // The parser is designed as a template engine: a set of rules are defined
-    // as functions which take an input string and start/end index and return
-    // either null (no match) or a DOM element to insert at current position in
-    // the tree (chosen by parent rule).
+    // as functions which take an input string and start/end index and an output
+    // which is a parent DOM element for insertion of generated elements.
     //
     // This parsing follows a recursive descent approach, and the call stack
     // during executing will reflect the hierarchy of the generated abstract
     // parse tree.
 
-    var templates = [paragraph, text];
+    var templates = [paragraph, text],
+        body = element('div',{className:'body'});
 
-    return element('div',{className:'body'},
-      applyTemplates(templates, input, 0, input.length)
+    applyTemplates(
+      templates,
+      input, 0, input.length,
+      body
     );
+    return body;
   }
 
   // Public API
