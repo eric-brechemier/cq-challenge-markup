@@ -102,12 +102,26 @@
     var i, length, out;
 
     for (i=0, length=templates.length; i<length; i++){
-      out = templates[i](context);
+      out = templates[i](templates,context);
       if (out) {
         return out;
       }
     }
     return null;
+  }
+
+  function paragraph(templates,context) {
+    
+    return element("p",{},
+      applyTemplates([text],context)
+    );
+  }
+
+  function text(templates, context) {
+    
+    var out = context.input.slice(context.index);
+    context.index = context.input.length;
+    return out;
   }
 
   // Function: parse(input): DOM element
@@ -132,7 +146,7 @@
     // approach, and the call stack during executing will reflect the hierarchy
     // of the generated abstract parse tree.
 
-    var templates = [];
+    var templates = [paragraph, text];
 
     return element('div',{className:'body'},
       applyTemplates(templates,{input:input, index:0})
