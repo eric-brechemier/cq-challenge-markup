@@ -22,7 +22,7 @@
 
   // Set the handler on Parse button
   $('parse').onclick = function(){
-    $('output').innerHTML = markup.parse( $('input').value ); 
+    $('output').innerHTML = markup.parse( $('input').value ).innerHTML; 
   };
 
 }(window,document));
