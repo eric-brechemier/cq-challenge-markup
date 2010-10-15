@@ -8,6 +8,10 @@
  */
 (function(window,document,undefined){
 
+  var EOL = ["\u000D","\u000D\u000A","\u000A"],
+      TAB = ["\u0009","        "];
+
+
   // Function: element(name,[attributes,childNodes...]): DOM Element
   // Create a new element with given name, attributes and children.
   //
@@ -75,6 +79,35 @@
     return parent;
   }
 
+  // Function: applyTemplates(context)
+  // The simple template engine used for parsing.
+  //
+  // Each rule function is applied in turn, until one returns a defined result.
+  // As a consequence, the position of each rule in the list corresponds to its
+  // relative priority (highest first).
+  //
+  // Parameters:
+  //   templates - array of functions, the set of template rules to apply
+  //   context - object, in/out context, with (at least) two properties:
+  //             * input: string, the source input
+  //             * index: integer, 0-based index of current character in input
+  //
+  // Returns:
+  //   DOM element, the output of the first matching rule,
+  //   or null if none matched. 
+  function applyTemplates(templates, context){
+    
+    var i, length, out;
+
+    for (i=0, length=templates.length; i<length; i++){
+      out = templates[i](context);
+      if (out) {
+        return out;
+      }
+    }
+    return null;
+  }
+
   // Function: parse(input): DOM element
   // Parse markup input and generate parsed markup (XHTML).
   //
@@ -89,7 +122,19 @@
   // Returns:
   //   DOM Element, the abstract syntax tree, in XHTML format
   function parse(input){
-    return element('div',{className:'body'},"FIXED");
+
+    // The parser is designed as a template engine: a set of rules are defined
+    // as functions which take an input context (in/out) and return either null
+    // (no match) or a DOM element to insert at current position in the tree
+    // (chosen by parent rule). This parsing follows a recursive descent
+    // approach, and the call stack during executing will reflect the hierarchy
+    // of the generated abstract parse tree.
+
+    var templates = [];
+
+    return element('div',{className:'body'},
+      applyTemplates(templates,{input:input, index:0});
+    );
   }
 
   // Public API
