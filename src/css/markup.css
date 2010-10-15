@@ -1,0 +1,52 @@
+/*
+ * CSS Styles for Markup Parser
+ *
+ * author:    Eric Bréchemier <codequarterly@eric.brechemier.name>
+ * license:   Creative Commons Attribution 3.0 Unported
+ *            http://creativecommons.org/licenses/by/3.0/
+ * version:   2010-10-15
+ */
+html {
+  font-size: 12px;
+  background-color: #424242;
+}
+
+h1 {
+  color: white;
+  text-align: center;
+}
+
+.markup {
+  display: block;
+  width: 67em;
+  height: 12em;
+  padding: 1em;
+  margin: 1em auto;
+  font-size: 1.2em;
+}
+
+.source {
+  font-family: Lucida Console, "Bitstream Vera Sans Mono", Monaco, monospace;
+}
+
+.body {
+  color: #333;
+  background-color: #C0C0DA;
+  font-family: Georgia,Palatino,"Palatino Linotype",Times,serif
+}
+
+button {
+  display: block;
+  margin: 1em auto;
+  width: 20em;
+  font-weight: bold;
+  color: white;
+  background-color: #123456;
+  padding: 1em 0.5em;
+}
+
+button:hover {
+  color: #123456;
+  background-color: white;
+}
+
