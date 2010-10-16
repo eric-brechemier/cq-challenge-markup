@@ -111,13 +111,18 @@
 
   function blankLine(templates, input, start, end, output) {
 
-    var i, length, nextEol;
+    var i, length, nextEol, multipleEol;
 
     for (i=0, length=EOL.length; i<length; i++){
       nextEol = input.indexOf(EOL[i]);
-      if (nextEol){
-        // TODO: replace eol with space
+      
+      // TODO: detect multiple line breaks
+      if (multipleEol) {
+        applyTemplates(templates, input, start, beforeBlankLine, output);
+        applyTemplates(templates, input, afterBlankLine, end, output);
         return true;
+      } else {
+        return false;
       }
     }
     return false;
